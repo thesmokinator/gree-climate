@@ -8,12 +8,14 @@ on:
 
 env:
   CARGO_TERM_COLOR: always
+  ACTIONS_ALLOW_USE_UNSECURE_NODE_VERSION: true
 
 jobs:
   fmt:
     name: Format
     runs-on: ubuntu-latest
     steps:
+      - run: git config --global init.defaultBranch main
       - uses: actions/checkout@v4
       - uses: dtolnay/rust-toolchain@stable
         with:
@@ -24,6 +26,7 @@ jobs:
     name: Clippy
     runs-on: ubuntu-latest
     steps:
+      - run: git config --global init.defaultBranch main
       - uses: actions/checkout@v4
       - uses: dtolnay/rust-toolchain@stable
         with:
@@ -34,6 +37,7 @@ jobs:
     name: Test
     runs-on: ubuntu-latest
     steps:
+      - run: git config --global init.defaultBranch main
       - uses: actions/checkout@v4
       - uses: dtolnay/rust-toolchain@stable
       - run: cargo test
@@ -42,6 +46,7 @@ jobs:
     name: Doc
     runs-on: ubuntu-latest
     steps:
+      - run: git config --global init.defaultBranch main
       - uses: actions/checkout@v4
       - uses: dtolnay/rust-toolchain@stable
       - run: cargo doc --no-deps
