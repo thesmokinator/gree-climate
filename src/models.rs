@@ -1,3 +1,9 @@
+//! Typed representations of GREE device state enums.
+//!
+//! Every operational mode and setting is represented as a strongly-typed
+//! enum rather than a magic integer or string. Each type implements
+//! `TryFrom<u8>` for safe conversion from raw device values.
+
 use serde_repr::{Deserialize_repr, Serialize_repr};
 
 /// Operating mode of the air conditioner.

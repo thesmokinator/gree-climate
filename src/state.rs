@@ -1,3 +1,9 @@
+//! Device state representation.
+//!
+//! [`State`] holds the complete snapshot of a GREE device's current
+//! settings. It is populated from device responses and can be diffed
+//! against a previous snapshot to compute property changes.
+
 use serde::{Deserialize, Serialize};
 
 use crate::models::{
@@ -100,12 +106,11 @@ impl State {
         if let Some(v) = props.get("Pow") {
             self.power = v.as_u64().map(|n| n > 0).unwrap_or(false);
         }
-        if let Some(v) = props.get("Mod") {
-            if let Some(n) = v.as_u64() {
-                if let Ok(mode) = Mode::try_from(n as u8) {
-                    self.mode = mode;
-                }
-            }
+        if let Some(v) = props.get("Mod")
+            && let Some(n) = v.as_u64()
+            && let Ok(mode) = Mode::try_from(n as u8)
+        {
+            self.mode = mode;
         }
         if let Some(v) = props.get("SetTem") {
             self.target_temperature = v.as_u64().map(|n| n as u8).unwrap_or(self.target_temperature);
@@ -119,33 +124,29 @@ impl State {
             self.current_temperature =
                 Some(Self::calc_current_temp(raw, bit, self.temperature_unit));
         }
-        if let Some(v) = props.get("TemUn") {
-            if let Some(n) = v.as_u64() {
-                if let Ok(unit) = TemperatureUnit::try_from(n as u8) {
-                    self.temperature_unit = unit;
-                }
-            }
+        if let Some(v) = props.get("TemUn")
+            && let Some(n) = v.as_u64()
+            && let Ok(unit) = TemperatureUnit::try_from(n as u8)
+        {
+            self.temperature_unit = unit;
         }
-        if let Some(v) = props.get("WdSpd") {
-            if let Some(n) = v.as_u64() {
-                if let Ok(fs) = FanSpeed::try_from(n as u8) {
-                    self.fan_speed = fs;
-                }
-            }
+        if let Some(v) = props.get("WdSpd")
+            && let Some(n) = v.as_u64()
+            && let Ok(fs) = FanSpeed::try_from(n as u8)
+        {
+            self.fan_speed = fs;
         }
-        if let Some(v) = props.get("SwUpDn") {
-            if let Some(n) = v.as_u64() {
-                if let Ok(sw) = SwingVertical::try_from(n as u8) {
-                    self.swing_vertical = sw;
-                }
-            }
+        if let Some(v) = props.get("SwUpDn")
+            && let Some(n) = v.as_u64()
+            && let Ok(sw) = SwingVertical::try_from(n as u8)
+        {
+            self.swing_vertical = sw;
         }
-        if let Some(v) = props.get("SwingLfRig") {
-            if let Some(n) = v.as_u64() {
-                if let Ok(sw) = SwingHorizontal::try_from(n as u8) {
-                    self.swing_horizontal = sw;
-                }
-            }
+        if let Some(v) = props.get("SwingLfRig")
+            && let Some(n) = v.as_u64()
+            && let Ok(sw) = SwingHorizontal::try_from(n as u8)
+        {
+            self.swing_horizontal = sw;
         }
         if let Some(v) = props.get("Tur") {
             self.turbo = v.as_u64().map(|n| n > 0).unwrap_or(false);

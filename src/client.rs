@@ -1,3 +1,8 @@
+//! High-level client for connecting to, authenticating with, and
+//! controlling a single GREE air conditioner.
+//!
+//! The main entry point is [`Client`].
+
 use std::collections::HashMap;
 use std::time::Duration;
 

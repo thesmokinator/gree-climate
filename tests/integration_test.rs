@@ -139,7 +139,8 @@ mod integration_tests {
 
     #[test]
     fn test_all_commands_roundtrip() {
-        let test_cases: Vec<(&str, fn(&str) -> gree_climate::packet::Packet)> =
+        type CmdFn = fn(&str) -> gree_climate::packet::Packet;
+        let test_cases: Vec<(&str, CmdFn)> =
             vec![
                 ("set_power", |m| Commands::set_power(m, true)),
                 ("set_mode", |m| Commands::set_mode(m, Mode::Heat)),

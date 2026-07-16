@@ -1,3 +1,9 @@
+//! LAN device discovery via UDP broadcast.
+//!
+//! Scanning the local network for GREE air conditioners using
+//! the unencrypted broadcast protocol. The primary entry point is
+//! [`discover`], which uses a default 5-second timeout.
+
 use std::time::Duration;
 
 use tracing::{debug, info};
@@ -11,10 +17,21 @@ use crate::protocol;
 
 const DEFAULT_SCAN_TIMEOUT_SECS: u64 = 5;
 
+/// Discover GREE climate devices on the local network.
+///
+/// Sends a UDP broadcast and waits up to 5 seconds for responses.
+/// Returns a list of [`DeviceInfo`] for every device that replied.
+///
+/// # Errors
+///
+/// Returns [`Error::NoDevicesFound`] if no device responds.
 pub async fn discover() -> Result<Vec<DeviceInfo>, Error> {
     discover_with_timeout(Duration::from_secs(DEFAULT_SCAN_TIMEOUT_SECS)).await
 }
 
+/// Discover GREE climate devices with a custom timeout duration.
+///
+/// Like [`discover`], but lets you control how long to wait for responses.
 pub async fn discover_with_timeout(
     timeout: Duration,
 ) -> Result<Vec<DeviceInfo>, Error> {

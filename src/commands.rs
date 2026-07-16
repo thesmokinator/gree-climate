@@ -1,3 +1,5 @@
+#![allow(missing_docs)]
+
 use serde_json::Value;
 
 use crate::models::{
@@ -5,6 +7,10 @@ use crate::models::{
 };
 use crate::packet::Packet;
 
+/// Factory for building GREE protocol command packets.
+///
+/// Used internally by [`Client`](crate::Client) but exposed for advanced
+/// use cases that need raw packet construction.
 #[derive(Debug)]
 pub struct Commands;
 

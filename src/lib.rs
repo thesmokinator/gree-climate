@@ -1,5 +1,5 @@
 #![deny(unsafe_code)]
-#![allow(missing_docs)]
+#![warn(missing_docs)]
 
 //! # gree-climate
 //!

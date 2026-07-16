@@ -1,3 +1,8 @@
+//! Device information and identification.
+//!
+//! [`DeviceInfo`] is the primary type in this module — it holds everything
+//! needed to connect to and identify a GREE device on the network.
+
 use std::fmt;
 use serde::{Deserialize, Serialize};
 

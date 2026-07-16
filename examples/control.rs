@@ -92,10 +92,10 @@ fn pick_device(count: usize) -> Result<usize, Box<dyn std::error::Error>> {
         let mut input = String::new();
         io::stdin().read_line(&mut input)?;
         let trimmed = input.trim();
-        if let Ok(idx) = trimmed.parse::<usize>() {
-            if idx < count {
-                return Ok(idx);
-            }
+        if let Ok(idx) = trimmed.parse::<usize>()
+            && idx < count
+        {
+            return Ok(idx);
         }
         eprintln!("Invalid selection. Enter a number between 0 and {}.", count - 1);
     }

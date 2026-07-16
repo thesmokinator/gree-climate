@@ -1,3 +1,5 @@
+#![allow(missing_docs)]
+
 use aes::Aes128;
 use aes::cipher::{BlockEncrypt, BlockDecrypt, KeyInit};
 use aes::cipher::generic_array::GenericArray;
@@ -71,6 +73,12 @@ impl Cipher {
 #[derive(Debug, Clone)]
 pub struct CipherV1 {
     key: Vec<u8>,
+}
+
+impl Default for CipherV1 {
+    fn default() -> Self {
+        Self::new()
+    }
 }
 
 impl CipherV1 {
@@ -151,6 +159,12 @@ impl CipherV1 {
 #[derive(Debug, Clone)]
 pub struct CipherV2 {
     key: Vec<u8>,
+}
+
+impl Default for CipherV2 {
+    fn default() -> Self {
+        Self::new()
+    }
 }
 
 impl CipherV2 {

@@ -1,3 +1,8 @@
+//! Error types for the gree-climate crate.
+//!
+//! All fallible operations return [`Error`], which covers every failure
+//! mode the library can encounter.
+
 use thiserror::Error;
 
 /// Errors that can occur during GREE device communication.
