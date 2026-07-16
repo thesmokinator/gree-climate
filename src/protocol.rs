@@ -21,22 +21,14 @@ pub async fn create_unicast_socket() -> Result<(UdpSocket, SocketAddr), Error> {
     Ok((socket, local))
 }
 
-pub async fn send_to(
-    socket: &UdpSocket,
-    addr: SocketAddr,
-    packet: &Packet,
-) -> Result<(), Error> {
+pub async fn send_to(socket: &UdpSocket, addr: SocketAddr, packet: &Packet) -> Result<(), Error> {
     let bytes = packet.to_bytes()?;
     debug!("Sending {} bytes to {addr}", bytes.len());
     socket.send_to(&bytes, addr).await?;
     Ok(())
 }
 
-pub async fn broadcast(
-    socket: &UdpSocket,
-    packet: &Packet,
-    port: u16,
-) -> Result<(), Error> {
+pub async fn broadcast(socket: &UdpSocket, packet: &Packet, port: u16) -> Result<(), Error> {
     let addr = SocketAddr::new("255.255.255.255".parse().unwrap(), port);
     send_to(socket, addr, packet).await
 }
@@ -84,17 +76,15 @@ pub async fn send_broadcast_and_collect(
 
     loop {
         match recv_from(socket, timeout, &mut buf).await {
-            Ok((size, addr)) => {
-                match Packet::from_bytes(&buf[..size]) {
-                    Ok(p) => {
-                        debug!("Received packet from {addr}");
-                        packets.push(p);
-                    }
-                    Err(e) => {
-                        debug!("Failed to parse packet from {addr}: {e}");
-                    }
+            Ok((size, addr)) => match Packet::from_bytes(&buf[..size]) {
+                Ok(p) => {
+                    debug!("Received packet from {addr}");
+                    packets.push(p);
                 }
-            }
+                Err(e) => {
+                    debug!("Failed to parse packet from {addr}: {e}");
+                }
+            },
             Err(Error::Timeout) => break,
             Err(e) => return Err(e),
         }

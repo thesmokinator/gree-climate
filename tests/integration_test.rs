@@ -1,11 +1,11 @@
 use std::collections::HashMap;
 
 use gree_climate::{
-    device::DeviceInfo,
-    crypto::Cipher,
     commands::Commands,
+    crypto::Cipher,
+    device::DeviceInfo,
+    models::{FanSpeed, Mode, SwingHorizontal, SwingVertical},
     state::State,
-    models::{Mode, FanSpeed, SwingVertical, SwingHorizontal},
 };
 
 #[cfg(test)]
@@ -140,33 +140,29 @@ mod integration_tests {
     #[test]
     fn test_all_commands_roundtrip() {
         type CmdFn = fn(&str) -> gree_climate::packet::Packet;
-        let test_cases: Vec<(&str, CmdFn)> =
-            vec![
-                ("set_power", |m| Commands::set_power(m, true)),
-                ("set_mode", |m| Commands::set_mode(m, Mode::Heat)),
-                ("set_temperature", |m| Commands::set_temperature(m, 25)),
-                ("set_fan_speed", |m| {
-                    Commands::set_fan_speed(m, FanSpeed::High)
-                }),
-                ("set_swing_vertical", |m| {
-                    Commands::set_swing_vertical(m, SwingVertical::FullSwing)
-                }),
-                ("set_swing_horizontal", |m| {
-                    Commands::set_swing_horizontal(
-                        m,
-                        SwingHorizontal::FullSwing,
-                    )
-                }),
-                ("set_turbo", |m| Commands::set_turbo(m, true)),
-                ("set_quiet", |m| Commands::set_quiet(m, true)),
-                ("set_sleep", |m| Commands::set_sleep(m, false)),
-                ("set_steady_heat", |m| Commands::set_steady_heat(m, true)),
-                ("set_power_save", |m| Commands::set_power_save(m, false)),
-                ("set_fresh_air", |m| Commands::set_fresh_air(m, true)),
-                ("set_xfan", |m| Commands::set_xfan(m, true)),
-                ("set_anion", |m| Commands::set_anion(m, false)),
-                ("set_light", |m| Commands::set_light(m, true)),
-            ];
+        let test_cases: Vec<(&str, CmdFn)> = vec![
+            ("set_power", |m| Commands::set_power(m, true)),
+            ("set_mode", |m| Commands::set_mode(m, Mode::Heat)),
+            ("set_temperature", |m| Commands::set_temperature(m, 25)),
+            ("set_fan_speed", |m| {
+                Commands::set_fan_speed(m, FanSpeed::High)
+            }),
+            ("set_swing_vertical", |m| {
+                Commands::set_swing_vertical(m, SwingVertical::FullSwing)
+            }),
+            ("set_swing_horizontal", |m| {
+                Commands::set_swing_horizontal(m, SwingHorizontal::FullSwing)
+            }),
+            ("set_turbo", |m| Commands::set_turbo(m, true)),
+            ("set_quiet", |m| Commands::set_quiet(m, true)),
+            ("set_sleep", |m| Commands::set_sleep(m, false)),
+            ("set_steady_heat", |m| Commands::set_steady_heat(m, true)),
+            ("set_power_save", |m| Commands::set_power_save(m, false)),
+            ("set_fresh_air", |m| Commands::set_fresh_air(m, true)),
+            ("set_xfan", |m| Commands::set_xfan(m, true)),
+            ("set_anion", |m| Commands::set_anion(m, false)),
+            ("set_light", |m| Commands::set_light(m, true)),
+        ];
 
         let cipher = Cipher::v1();
         let mac = "test-mac-00";
@@ -175,10 +171,7 @@ mod integration_tests {
             let mut pkt = cmd_fn(mac);
             pkt.encrypt_pack(&cipher).unwrap();
             let inner = pkt.decrypt_pack(&cipher).unwrap();
-            assert_eq!(
-                inner["t"], "cmd",
-                "Command {name} has incorrect inner type"
-            );
+            assert_eq!(inner["t"], "cmd", "Command {name} has incorrect inner type");
             assert!(
                 inner["opt"].as_array().is_some(),
                 "Command {name} has no opt array"
@@ -220,9 +213,6 @@ mod integration_tests {
         assert_eq!(format!("{err}"), "device communication timed out");
 
         let err = gree_climate::Error::DeviceNotBound;
-        assert!(
-            format!("{err}").contains("not bound"),
-            "Error: {err}"
-        );
+        assert!(format!("{err}").contains("not bound"), "Error: {err}");
     }
 }

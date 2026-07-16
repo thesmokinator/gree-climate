@@ -1,6 +1,6 @@
 use std::io::{self, Write};
 
-use gree_climate::{discover, Client, FanSpeed, Mode, SwingVertical};
+use gree_climate::{Client, FanSpeed, Mode, SwingVertical, discover};
 
 #[tokio::main]
 async fn main() -> Result<(), Box<dyn std::error::Error>> {
@@ -97,6 +97,9 @@ fn pick_device(count: usize) -> Result<usize, Box<dyn std::error::Error>> {
         {
             return Ok(idx);
         }
-        eprintln!("Invalid selection. Enter a number between 0 and {}.", count - 1);
+        eprintln!(
+            "Invalid selection. Enter a number between 0 and {}.",
+            count - 1
+        );
     }
 }

@@ -6,9 +6,7 @@
 
 use serde::{Deserialize, Serialize};
 
-use crate::models::{
-    FanSpeed, Mode, SwingHorizontal, SwingVertical, TemperatureUnit,
-};
+use crate::models::{FanSpeed, Mode, SwingHorizontal, SwingVertical, TemperatureUnit};
 
 /// Represents the complete state of a GREE air conditioner.
 ///
@@ -113,14 +111,14 @@ impl State {
             self.mode = mode;
         }
         if let Some(v) = props.get("SetTem") {
-            self.target_temperature = v.as_u64().map(|n| n as u8).unwrap_or(self.target_temperature);
+            self.target_temperature = v
+                .as_u64()
+                .map(|n| n as u8)
+                .unwrap_or(self.target_temperature);
         }
         if let Some(v) = props.get("TemSen") {
             let raw = v.as_u64().map(|n| n as i16).unwrap_or(0);
-            let bit = props
-                .get("TemRec")
-                .and_then(Value::as_u64)
-                .unwrap_or(0);
+            let bit = props.get("TemRec").and_then(Value::as_u64).unwrap_or(0);
             self.current_temperature =
                 Some(Self::calc_current_temp(raw, bit, self.temperature_unit));
         }
@@ -194,11 +192,7 @@ impl State {
         }
     }
 
-    fn calc_current_temp(
-        raw: i16,
-        _bit: u64,
-        unit: TemperatureUnit,
-    ) -> u8 {
+    fn calc_current_temp(raw: i16, _bit: u64, unit: TemperatureUnit) -> u8 {
         let temp = match unit {
             TemperatureUnit::Celsius if raw > 40 => raw - 40,
             _ => raw,
@@ -208,10 +202,7 @@ impl State {
 
     /// Returns a list of (property_name, value) pairs for properties that
     /// differ from a previous state snapshot. Used for partial state updates.
-    pub fn changed_properties(
-        &self,
-        previous: &State,
-    ) -> Vec<(&'static str, serde_json::Value)> {
+    pub fn changed_properties(&self, previous: &State) -> Vec<(&'static str, serde_json::Value)> {
         let mut props = Vec::new();
 
         if self.power != previous.power {
@@ -236,7 +227,10 @@ impl State {
             props.push(("Tur", serde_json::json!(self.turbo as u8)));
         }
         if self.quiet != previous.quiet {
-            props.push(("Quiet", serde_json::json!(if self.quiet { 2u8 } else { 0u8 })));
+            props.push((
+                "Quiet",
+                serde_json::json!(if self.quiet { 2u8 } else { 0u8 }),
+            ));
         }
         if self.sleep != previous.sleep {
             props.push(("SwhSlp", serde_json::json!(self.sleep as u8)));

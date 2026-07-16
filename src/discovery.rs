@@ -12,7 +12,7 @@ use crate::commands::Commands;
 use crate::crypto::{Cipher, CipherV1};
 use crate::device::DeviceInfo;
 use crate::error::Error;
-use crate::packet::{Packet, GREE_PORT};
+use crate::packet::{GREE_PORT, Packet};
 use crate::protocol;
 
 const DEFAULT_SCAN_TIMEOUT_SECS: u64 = 5;
@@ -32,9 +32,7 @@ pub async fn discover() -> Result<Vec<DeviceInfo>, Error> {
 /// Discover GREE climate devices with a custom timeout duration.
 ///
 /// Like [`discover`], but lets you control how long to wait for responses.
-pub async fn discover_with_timeout(
-    timeout: Duration,
-) -> Result<Vec<DeviceInfo>, Error> {
+pub async fn discover_with_timeout(timeout: Duration) -> Result<Vec<DeviceInfo>, Error> {
     info!("Discovering GREE devices...");
     let socket = protocol::create_broadcast_socket().await?;
     let scan_packet = Commands::scan_packet();

@@ -1,6 +1,6 @@
 //! Error types for the gree-climate crate.
 //!
-//! All fallible operations return [`Error`], which covers every failure
+//! All fallible operations return [`enum@Error`], which covers every failure
 //! mode the library can encounter.
 
 use thiserror::Error;

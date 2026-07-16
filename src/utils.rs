@@ -19,9 +19,7 @@ pub fn pkcs7_unpad(data: &[u8]) -> Result<&[u8], crate::Error> {
     }
     for &byte in &data[data.len() - pad_len..] {
         if byte as usize != pad_len {
-            return Err(crate::Error::Crypto(
-                "invalid PKCS7 padding bytes".into(),
-            ));
+            return Err(crate::Error::Crypto("invalid PKCS7 padding bytes".into()));
         }
     }
     Ok(&data[..data.len() - pad_len])
@@ -135,6 +133,9 @@ mod tests {
     #[test]
     fn test_temperature_table_coverage() {
         let table = build_temperature_table();
-        assert_eq!(table.len(), (TEMP_MAX_TABLE_F - TEMP_MIN_TABLE_F + 1) as usize);
+        assert_eq!(
+            table.len(),
+            (TEMP_MAX_TABLE_F - TEMP_MIN_TABLE_F + 1) as usize
+        );
     }
 }
