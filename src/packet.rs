@@ -1,3 +1,5 @@
+#![allow(missing_docs)]
+
 use serde::{Deserialize, Serialize};
 use serde_json::Value;
 
@@ -111,18 +113,13 @@ impl Packet {
     }
 
     pub fn decrypt_pack(&self, cipher: &Cipher) -> Result<serde_json::Value, Error> {
-        let pack = self
-            .pack
-            .as_ref()
-            .ok_or_else(|| Error::MissingPack)?;
+        let pack = self.pack.as_ref().ok_or(Error::MissingPack)?;
 
         if let Some(obj) = pack.as_object() {
             return Ok(serde_json::Value::Object(obj.clone()));
         }
 
-        let pack_str = pack
-            .as_str()
-            .ok_or_else(|| Error::InvalidPacket)?;
+        let pack_str = pack.as_str().ok_or(Error::InvalidPacket)?;
         let decrypted_str = cipher.decrypt(pack_str)?;
         let value: serde_json::Value = serde_json::from_str(&decrypted_str)?;
         Ok(value)
@@ -133,7 +130,7 @@ impl Packet {
         inner["t"]
             .as_str()
             .map(|s| s.to_string())
-            .ok_or_else(|| Error::InvalidPacket)
+            .ok_or(Error::InvalidPacket)
     }
 
     pub fn is_bind_ok(&self, cipher: &Cipher) -> Result<bool, Error> {
@@ -145,9 +142,7 @@ impl Packet {
         inner["key"]
             .as_str()
             .map(|s| s.to_string())
-            .ok_or_else(|| {
-                Error::Authentication("no key in bindok response".into())
-            })
+            .ok_or_else(|| Error::Authentication("no key in bindok response".into()))
     }
 }
 

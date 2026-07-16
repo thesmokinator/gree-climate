@@ -1,8 +1,12 @@
+//! Device state representation.
+//!
+//! [`State`] holds the complete snapshot of a GREE device's current
+//! settings. It is populated from device responses and can be diffed
+//! against a previous snapshot to compute property changes.
+
 use serde::{Deserialize, Serialize};
 
-use crate::models::{
-    FanSpeed, Mode, SwingHorizontal, SwingVertical, TemperatureUnit,
-};
+use crate::models::{FanSpeed, Mode, SwingHorizontal, SwingVertical, TemperatureUnit};
 
 /// Represents the complete state of a GREE air conditioner.
 ///
@@ -100,52 +104,47 @@ impl State {
         if let Some(v) = props.get("Pow") {
             self.power = v.as_u64().map(|n| n > 0).unwrap_or(false);
         }
-        if let Some(v) = props.get("Mod") {
-            if let Some(n) = v.as_u64() {
-                if let Ok(mode) = Mode::try_from(n as u8) {
-                    self.mode = mode;
-                }
-            }
+        if let Some(v) = props.get("Mod")
+            && let Some(n) = v.as_u64()
+            && let Ok(mode) = Mode::try_from(n as u8)
+        {
+            self.mode = mode;
         }
         if let Some(v) = props.get("SetTem") {
-            self.target_temperature = v.as_u64().map(|n| n as u8).unwrap_or(self.target_temperature);
+            self.target_temperature = v
+                .as_u64()
+                .map(|n| n as u8)
+                .unwrap_or(self.target_temperature);
         }
         if let Some(v) = props.get("TemSen") {
             let raw = v.as_u64().map(|n| n as i16).unwrap_or(0);
-            let bit = props
-                .get("TemRec")
-                .and_then(Value::as_u64)
-                .unwrap_or(0);
+            let bit = props.get("TemRec").and_then(Value::as_u64).unwrap_or(0);
             self.current_temperature =
                 Some(Self::calc_current_temp(raw, bit, self.temperature_unit));
         }
-        if let Some(v) = props.get("TemUn") {
-            if let Some(n) = v.as_u64() {
-                if let Ok(unit) = TemperatureUnit::try_from(n as u8) {
-                    self.temperature_unit = unit;
-                }
-            }
+        if let Some(v) = props.get("TemUn")
+            && let Some(n) = v.as_u64()
+            && let Ok(unit) = TemperatureUnit::try_from(n as u8)
+        {
+            self.temperature_unit = unit;
         }
-        if let Some(v) = props.get("WdSpd") {
-            if let Some(n) = v.as_u64() {
-                if let Ok(fs) = FanSpeed::try_from(n as u8) {
-                    self.fan_speed = fs;
-                }
-            }
+        if let Some(v) = props.get("WdSpd")
+            && let Some(n) = v.as_u64()
+            && let Ok(fs) = FanSpeed::try_from(n as u8)
+        {
+            self.fan_speed = fs;
         }
-        if let Some(v) = props.get("SwUpDn") {
-            if let Some(n) = v.as_u64() {
-                if let Ok(sw) = SwingVertical::try_from(n as u8) {
-                    self.swing_vertical = sw;
-                }
-            }
+        if let Some(v) = props.get("SwUpDn")
+            && let Some(n) = v.as_u64()
+            && let Ok(sw) = SwingVertical::try_from(n as u8)
+        {
+            self.swing_vertical = sw;
         }
-        if let Some(v) = props.get("SwingLfRig") {
-            if let Some(n) = v.as_u64() {
-                if let Ok(sw) = SwingHorizontal::try_from(n as u8) {
-                    self.swing_horizontal = sw;
-                }
-            }
+        if let Some(v) = props.get("SwingLfRig")
+            && let Some(n) = v.as_u64()
+            && let Ok(sw) = SwingHorizontal::try_from(n as u8)
+        {
+            self.swing_horizontal = sw;
         }
         if let Some(v) = props.get("Tur") {
             self.turbo = v.as_u64().map(|n| n > 0).unwrap_or(false);
@@ -193,11 +192,7 @@ impl State {
         }
     }
 
-    fn calc_current_temp(
-        raw: i16,
-        _bit: u64,
-        unit: TemperatureUnit,
-    ) -> u8 {
+    fn calc_current_temp(raw: i16, _bit: u64, unit: TemperatureUnit) -> u8 {
         let temp = match unit {
             TemperatureUnit::Celsius if raw > 40 => raw - 40,
             _ => raw,
@@ -207,10 +202,7 @@ impl State {
 
     /// Returns a list of (property_name, value) pairs for properties that
     /// differ from a previous state snapshot. Used for partial state updates.
-    pub fn changed_properties(
-        &self,
-        previous: &State,
-    ) -> Vec<(&'static str, serde_json::Value)> {
+    pub fn changed_properties(&self, previous: &State) -> Vec<(&'static str, serde_json::Value)> {
         let mut props = Vec::new();
 
         if self.power != previous.power {
@@ -235,7 +227,10 @@ impl State {
             props.push(("Tur", serde_json::json!(self.turbo as u8)));
         }
         if self.quiet != previous.quiet {
-            props.push(("Quiet", serde_json::json!(if self.quiet { 2u8 } else { 0u8 })));
+            props.push((
+                "Quiet",
+                serde_json::json!(if self.quiet { 2u8 } else { 0u8 }),
+            ));
         }
         if self.sleep != previous.sleep {
             props.push(("SwhSlp", serde_json::json!(self.sleep as u8)));

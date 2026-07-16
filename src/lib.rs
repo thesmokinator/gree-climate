@@ -1,5 +1,5 @@
 #![deny(unsafe_code)]
-#![allow(missing_docs)]
+#![warn(missing_docs)]
 
 //! # gree-climate
 //!
@@ -78,9 +78,7 @@ pub use client::Client;
 pub use device::DeviceInfo;
 pub use discovery::discover;
 pub use error::Error;
-pub use models::{
-    CipherKind, FanSpeed, Mode, SwingHorizontal, SwingVertical, TemperatureUnit,
-};
+pub use models::{CipherKind, FanSpeed, Mode, SwingHorizontal, SwingVertical, TemperatureUnit};
 pub use state::State;
 
 /// Alias for `std::result::Result<T, gree_climate::Error>`.

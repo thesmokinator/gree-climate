@@ -1,6 +1,8 @@
+#![allow(missing_docs)]
+
 use aes::Aes128;
-use aes::cipher::{BlockEncrypt, BlockDecrypt, KeyInit};
 use aes::cipher::generic_array::GenericArray;
+use aes::cipher::{BlockDecrypt, BlockEncrypt, KeyInit};
 use base64::Engine;
 use tracing::debug;
 
@@ -9,12 +11,11 @@ use crate::utils::{pkcs7_pad, pkcs7_unpad, reset_trailing_garbage};
 
 const V1_DEFAULT_KEY: &str = "a3K8Bx%2r8Y7#xDh";
 const V2_DEFAULT_KEY: &str = "{yxAHAY_Lm6pbC/<";
-const V2_NONCE: [u8; 12] = [0x54, 0x40, 0x78, 0x44, 0x49, 0x67, 0x5a, 0x51, 0x6c, 0x5e, 0x63, 0x13];
+const V2_NONCE: [u8; 12] = [
+    0x54, 0x40, 0x78, 0x44, 0x49, 0x67, 0x5a, 0x51, 0x6c, 0x5e, 0x63, 0x13,
+];
 
-use aes_gcm::{
-    aead::Aead,
-    Aes128Gcm,
-};
+use aes_gcm::{Aes128Gcm, aead::Aead};
 
 #[derive(Debug, Clone)]
 pub enum Cipher {
@@ -71,6 +72,12 @@ impl Cipher {
 #[derive(Debug, Clone)]
 pub struct CipherV1 {
     key: Vec<u8>,
+}
+
+impl Default for CipherV1 {
+    fn default() -> Self {
+        Self::new()
+    }
 }
 
 impl CipherV1 {
@@ -153,6 +160,12 @@ pub struct CipherV2 {
     key: Vec<u8>,
 }
 
+impl Default for CipherV2 {
+    fn default() -> Self {
+        Self::new()
+    }
+}
+
 impl CipherV2 {
     pub fn new() -> Self {
         Self {
@@ -179,10 +192,7 @@ impl CipherV2 {
         let key = GenericArray::clone_from_slice(&self.key);
         let cipher = Aes128Gcm::new(&key);
         let encrypted = cipher
-            .encrypt(
-                GenericArray::from_slice(&V2_NONCE),
-                data.as_bytes(),
-            )
+            .encrypt(GenericArray::from_slice(&V2_NONCE), data.as_bytes())
             .map_err(|e| Error::Crypto(format!("encryption failed: {e}")))?;
 
         let encoded = base64::engine::general_purpose::STANDARD.encode(&encrypted);

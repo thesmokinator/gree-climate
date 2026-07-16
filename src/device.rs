@@ -1,5 +1,10 @@
-use std::fmt;
+//! Device information and identification.
+//!
+//! [`DeviceInfo`] is the primary type in this module — it holds everything
+//! needed to connect to and identify a GREE device on the network.
+
 use serde::{Deserialize, Serialize};
+use std::fmt;
 
 /// Information about a discovered GREE device.
 ///
@@ -39,11 +44,7 @@ impl DeviceInfo {
     /// If `name` is empty, the MAC address (with colons stripped) is used.
     pub fn new(ip: String, port: u16, mac: String, name: String) -> Self {
         let mac_stripped = mac.replace(':', "");
-        let resolved_name = if name.is_empty() {
-            mac_stripped
-        } else {
-            name
-        };
+        let resolved_name = if name.is_empty() { mac_stripped } else { name };
         Self {
             ip,
             port,

@@ -1,3 +1,8 @@
+//! High-level client for connecting to, authenticating with, and
+//! controlling a single GREE air conditioner.
+//!
+//! The main entry point is [`Client`].
+
 use std::collections::HashMap;
 use std::time::Duration;
 
@@ -9,9 +14,7 @@ use crate::commands::Commands;
 use crate::crypto::Cipher;
 use crate::device::DeviceInfo;
 use crate::error::Error;
-use crate::models::{
-    FanSpeed, Mode, SwingHorizontal, SwingVertical,
-};
+use crate::models::{FanSpeed, Mode, SwingHorizontal, SwingVertical};
 use crate::packet::Packet;
 use crate::protocol;
 use crate::state::State;
@@ -113,7 +116,10 @@ impl Client {
         let bind_packet = Commands::bind_packet(&self.device_info.mac);
 
         for cipher_try in [Cipher::v1(), Cipher::v2()] {
-            debug!("Trying bind with {:?} cipher", std::mem::discriminant(&cipher_try));
+            debug!(
+                "Trying bind with {:?} cipher",
+                std::mem::discriminant(&cipher_try)
+            );
             let mut try_packet = bind_packet.clone();
 
             if let Cipher::V1(ref cv1) = cipher_try {
@@ -181,25 +187,34 @@ impl Client {
             "dat" => {
                 let cols: Vec<String> = inner["cols"]
                     .as_array()
-                    .map(|a| a.iter().filter_map(|v| v.as_str().map(|s| s.to_string())).collect())
+                    .map(|a| {
+                        a.iter()
+                            .filter_map(|v| v.as_str().map(|s| s.to_string()))
+                            .collect()
+                    })
                     .unwrap_or_default();
-                let values: Vec<Value> = inner["dat"]
-                    .as_array()
-                    .cloned()
-                    .unwrap_or_default();
-                cols.into_iter().zip(values).collect::<HashMap<String, Value>>()
+                let values: Vec<Value> = inner["dat"].as_array().cloned().unwrap_or_default();
+                cols.into_iter()
+                    .zip(values)
+                    .collect::<HashMap<String, Value>>()
             }
             "res" => {
                 let opts: Vec<String> = inner["opt"]
                     .as_array()
-                    .map(|a| a.iter().filter_map(|v| v.as_str().map(|s| s.to_string())).collect())
+                    .map(|a| {
+                        a.iter()
+                            .filter_map(|v| v.as_str().map(|s| s.to_string()))
+                            .collect()
+                    })
                     .unwrap_or_default();
                 let values: Vec<Value> = inner["val"]
                     .as_array()
                     .or_else(|| inner["p"].as_array())
                     .cloned()
                     .unwrap_or_default();
-                opts.into_iter().zip(values).collect::<HashMap<String, Value>>()
+                opts.into_iter()
+                    .zip(values)
+                    .collect::<HashMap<String, Value>>()
             }
             _ => {
                 return Err(Error::InvalidPacket);
@@ -210,7 +225,8 @@ impl Client {
             self.hid = Some(hid.to_string());
         }
 
-        self.state.merge_from_properties(&properties, self.hid.as_deref());
+        self.state
+            .merge_from_properties(&properties, self.hid.as_deref());
         debug!("State refreshed: {:?}", self.state);
 
         Ok(())
@@ -248,34 +264,23 @@ impl Client {
     }
 
     /// Set the fan speed.
-    pub async fn set_fan_speed(
-        &mut self,
-        speed: FanSpeed,
-    ) -> Result<(), Error> {
+    pub async fn set_fan_speed(&mut self, speed: FanSpeed) -> Result<(), Error> {
         self.ensure_bound()?;
         let packet = Commands::set_fan_speed(&self.device_info.mac, speed);
         self.send_command(packet).await
     }
 
     /// Set the vertical swing position.
-    pub async fn set_swing_vertical(
-        &mut self,
-        swing: SwingVertical,
-    ) -> Result<(), Error> {
+    pub async fn set_swing_vertical(&mut self, swing: SwingVertical) -> Result<(), Error> {
         self.ensure_bound()?;
-        let packet =
-            Commands::set_swing_vertical(&self.device_info.mac, swing);
+        let packet = Commands::set_swing_vertical(&self.device_info.mac, swing);
         self.send_command(packet).await
     }
 
     /// Set the horizontal swing position.
-    pub async fn set_swing_horizontal(
-        &mut self,
-        swing: SwingHorizontal,
-    ) -> Result<(), Error> {
+    pub async fn set_swing_horizontal(&mut self, swing: SwingHorizontal) -> Result<(), Error> {
         self.ensure_bound()?;
-        let packet =
-            Commands::set_swing_horizontal(&self.device_info.mac, swing);
+        let packet = Commands::set_swing_horizontal(&self.device_info.mac, swing);
         self.send_command(packet).await
     }
 
@@ -345,10 +350,7 @@ impl Client {
     /// Send a raw command to the device with custom property key/value pairs.
     ///
     /// Useful for experimental or unsupported properties.
-    pub async fn send_raw(
-        &mut self,
-        props: HashMap<&str, Value>,
-    ) -> Result<(), Error> {
+    pub async fn send_raw(&mut self, props: HashMap<&str, Value>) -> Result<(), Error> {
         self.ensure_bound()?;
         let opts: Vec<&str> = props.keys().copied().collect();
         let values: Vec<Value> = props.values().cloned().collect();
